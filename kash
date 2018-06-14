@@ -25,7 +25,7 @@ exam_pods() {
     if [[ $count -eq 0 ]]; then
       echo "No matching pods found"
     elif [[ $count -eq 1 ]]; then
-      echo "Pod ${filtered} Found, Checking containers"
+      echo "Pod ${filtered} Found"
       containers=$(kubectl get po "${filtered}" -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}');
       if [[ "$2" == "" ]]; then
         filtered_containers="${containers}"
@@ -37,10 +37,10 @@ exam_pods() {
       if [[ $containers_count -eq 0 ]]; then
         echo "Pod has no containers";
       elif [[ $containers_count -eq 1 ]]; then
-        echo "Entering ${filtered_containers}..."
+        echo "Entering container ${filtered_containers} in pod ${filtered_containers}..."
         kubectl exec -it ${filtered} -c ${filtered_containers} sh
       else
-        echo "Please choose a container from:"
+        echo "Please specify a container from:"
         echo "${filtered_containers}"
       fi
     else
