@@ -50,10 +50,6 @@ exam_pods() {
   fi
 }
 
-list_containers() {
-  echo "List containers"
-}
-
 main() {
   if [[ "$#" -eq 0 ]]; then
     exam_pods
