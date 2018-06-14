@@ -8,7 +8,8 @@ Kash helps you to easly sh into a container running inside a kubernetes pod
 
 run `kash` to list all pods running in the namespace you're pointing to
 
-For example:
+Example:
+
     $ kash
     some-service-1
     some-service-2
