@@ -44,7 +44,7 @@ exam_pods() {
         echo "${filtered_containers}"
       fi
     else
-      echo "${pods}";
+      echo "${filtered}";
     fi
 
   fi
