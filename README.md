@@ -4,6 +4,14 @@
 
 Kash helps you to easly sh into a container running inside a kubernetes pod
 
+## Installation
+
+### MacOS & Linux
+
+Assuming `/usr/local/bin` is in your `PATH`, simply run:
+
+    wget "https://raw.githubusercontent.com/do87/kash/master/kash" -O /usr/local/bin/kash && chmod +x /usr/local/bin/kash
+
 ## How does it work?
 
 run `kash` to list all pods running in the namespace you're pointing to
