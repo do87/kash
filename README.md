@@ -1,6 +1,6 @@
 # Kash
 
-Kash helps you to easly sh into a container running inside a kubernetes pod
+Kash enables you to quickly get into a container running in a kubernetes pod
 
 ## Installation
 
@@ -26,7 +26,7 @@ Example:
 To filter, simply add part of the pod name, i.e.
 
     $ kash service-1
-    Pod some-service-1 Found, Checking containers
+    Pod some-service-1 Found
     Please specify a container from:
     service-1-nginx
     service-1-api
