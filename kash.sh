@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+usage() {
+  cat <<"EOF"
+USAGE:
+  kash                   : list available pods in namespace
+  kash <POD>             : enter container or list containers if more than 1
+  kush <POD> <CONTAINER> : enter container
+
+FLAGS:
+  -h,--help              : help
+EOF
+  exit 1
+}
+
+exam_pods() {
+  pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}');
+  filtered="";
+  if [[ "$1" == "" ]]; then
+    echo "${pods}"
+  else
+    filtered=$(echo "${pods}" | grep "${1}")
+    count=$(echo "${filtered}" | wc -l)
+
+    if [[ $count -eq 0 ]]; then
+      echo "No matching pods found"
+    elif [[ $count -eq 1 ]]; then
+      echo "Pod ${filtered} Found, Checking containers"
+      containers=$(kubectl get po "${filtered}" -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}');
+      if [[ "$2" == "" ]]; then
+        filtered_containers="${containers}"
+      else
+        filtered_containers=$(echo "${containers}" | grep "${2}")
+      fi
+      containers_count=$(echo "${filtered_containers}" | wc -l)
+
+      if [[ $containers_count -eq 0 ]]; then
+        echo "Pod has no containers";
+      elif [[ $containers_count -eq 1 ]]; then
+        echo "Entering ${filtered_containers}..."
+        kubectl exec -it ${filtered} -c ${filtered_containers} sh
+      else
+        echo "Please choose a container from:"
+        echo "${filtered_containers}"
+      fi
+    else
+      echo "${pods}";
+    fi
+
+  fi
+}
+
+list_containers() {
+  echo "List containers"
+}
+
+main() {
+  if [[ "$#" -eq 0 ]]; then
+    exam_pods
+  elif [[ "$#" -eq 1 ]]; then
+    if [[ "${1}" == '-h' || "${1}" == '--help' ]]; then
+      usage
+    elif [[ "${1}" =~ ^-(.*) ]]; then
+      echo "error: unrecognized flag \"${1}\"" >&2
+      usage
+    else
+      exam_pods "${1}" ""
+    fi
+  elif [[ "$#" -eq 2 ]]; then
+    exam_pods "${1}" "${2}"
+  else
+    echo "error: bad format used" >&2
+    usage
+  fi
+}
+
+main "$@"
