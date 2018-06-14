@@ -1,7 +1,5 @@
 # Kash
 
-## What is Kash?
-
 Kash helps you to easly sh into a container running inside a kubernetes pod
 
 ## Installation
