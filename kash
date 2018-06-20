@@ -13,46 +13,80 @@ EOF
   exit 1
 }
 
-exam_pods() {
+handle_containers() {
+  containers=$(kubectl get po "${1}" -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}');
+  if [[ "$2" == "" ]]; then
+    filtered="${containers}"
+  else
+    filtered=$(echo "${containers}" | grep "${2}")
+  fi
+
+  count=$(echo "${filtered}" | wc -l)
+  if [[ "$filtered" == "" ]]; then
+    echo "Pod ${1} has no containers";
+  elif [[ $count -eq 1 ]]; then
+    echo "Entering container ${filtered} in pod ${1}..."
+    kubectl exec -it "${1}" -c "${filtered}" sh
+  else
+    echo "Choose a container:"
+    echo "$filtered"
+    selected=$( echo "${filtered}" | fzf -0 -1 --tac -q "${args[1]:-""}" --prompt "> " );
+    if [[ "$selected" == "" ]]; then
+      exit 1
+    fi
+    handle_containers "${1}" "${selected}"
+  fi
+}
+
+handle_pods() {
   pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}');
   filtered="";
   if [[ "$1" == "" ]]; then
-    echo "${pods}"
+    selected=$( echo "${pods}" | fzf -0 -1 --tac -q "${args[1]:-""}" --prompt "> " );
+    if [[ "$selected" == "" ]]; then
+      exit 1
+    fi
+    handle_pods "${selected}"
   else
     filtered=$(echo "${pods}" | grep "${1}")
     count=$(echo "${filtered}" | wc -l)
-
-    if [[ $count -eq 0 ]]; then
-      echo "No matching pods found"
+    if [[ "$filtered" == "" ]]; then
+      echo "No matching pods found;Run kash without arguments to view all available pods;" | tr ';' '\n'
     elif [[ $count -eq 1 ]]; then
-      echo "Pod ${filtered} Found"
-      containers=$(kubectl get po "${filtered}" -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}');
+      echo "Pod ${filtered} Selected"
       if [[ "$2" == "" ]]; then
-        filtered_containers="${containers}"
+        handle_containers "${filtered}"
       else
-        filtered_containers=$(echo "${containers}" | grep "${2}")
-      fi
-      containers_count=$(echo "${filtered_containers}" | wc -l)
-
-      if [[ $containers_count -eq 0 ]]; then
-        echo "Pod has no containers";
-      elif [[ $containers_count -eq 1 ]]; then
-        echo "Entering container ${filtered_containers} in pod ${filtered_containers}..."
-        kubectl exec -it ${filtered} -c ${filtered_containers} sh
-      else
-        echo "Please specify a container from:"
-        echo "${filtered_containers}"
+        handle_containers "${filtered}" "$2"
       fi
     else
-      echo "${filtered}";
+      selected=$( echo "${filtered}" | fzf -0 -1 --tac -q "${1:-""}" --prompt "> ");
+      if [[ "$selected" == "" ]]; then
+        exit 1
+      fi
+      handle_pods "${selected}"
     fi
 
   fi
 }
 
+requirements() {
+
+  if [ ! -x "$(which kubectl 2>/dev/null)" ]; then
+    echo "kubectl is required and couldn't be found;please refer to https://kubernetes.io/docs/tasks/kubectl/install" | tr ';' '\n' >&2
+    exit 1
+  fi
+  if [ ! -x "$(which fzf 2>/dev/null)" ]; then
+    echo "fzf is required and couldn't be found;Please refer to https://github.com/junegunn/fzf" | tr ';' '\n' >&2
+    exit 1
+  fi
+}
+
 main() {
+  requirements
+
   if [[ "$#" -eq 0 ]]; then
-    exam_pods
+    handle_pods
   elif [[ "$#" -eq 1 ]]; then
     if [[ "${1}" == '-h' || "${1}" == '--help' ]]; then
       usage
@@ -60,10 +94,10 @@ main() {
       echo "error: unrecognized flag \"${1}\"" >&2
       usage
     else
-      exam_pods "${1}" ""
+      handle_pods "${1}" ""
     fi
   elif [[ "$#" -eq 2 ]]; then
-    exam_pods "${1}" "${2}"
+    handle_pods "${1}" "${2}"
   else
     echo "error: bad format used" >&2
     usage
