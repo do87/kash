@@ -73,7 +73,7 @@ handle_pods() {
 requirements() {
 
   if [ ! -x "$(which kubectl 2>/dev/null)" ]; then
-    echo "kubectl is required and couldn't be found;please refer to https://kubernetes.io/docs/tasks/kubectl/install/" | tr ';' '\n' >&2
+    echo "kubectl is required and couldn't be found;please refer to https://kubernetes.io/docs/tasks/kubectl/install" | tr ';' '\n' >&2
     exit 1
   fi
   if [ ! -x "$(which fzf 2>/dev/null)" ]; then

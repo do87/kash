@@ -1,6 +1,10 @@
 # Kash
 
-Kash enables you to quickly get into a container running in a kubernetes pod
+`kash` enables you to quickly get into a container running in a kubernetes pod
+
+Current `kash` release relies on both [kubectl](https://kubernetes.io/docs/tasks/kubectl/install) and [fzf](https://github.com/junegunn/fzf)
+
+If you wish to use the older version of `kash` without `fzf` dependency, please refer to [kash v1.0](https://github.com/do87/kash/tree/v1.0)
 
 ## Installation
 
@@ -8,7 +12,7 @@ Kash enables you to quickly get into a container running in a kubernetes pod
 
 Assuming `/usr/local/bin` is in your `PATH`, simply run:
 
-    wget "https://raw.githubusercontent.com/do87/kash/master/kash" \
+    wget "https://raw.githubusercontent.com/do87/kash/v2.0/kash" \
       -O /usr/local/bin/kash && chmod +x /usr/local/bin/kash
 
 ## How does it work?
