@@ -4,7 +4,7 @@
 
 Current `kash` release relies on both [kubectl](https://kubernetes.io/docs/tasks/kubectl/install) and [fzf](https://github.com/junegunn/fzf)
 
-If you wish to use the older version of `kash` without `fzf` dependency, please refer to [kash v1.0](https://github.com/do87/kash/tree/v1.0)
+If you wish to use the older version, without `fzf` dependency, please refer to [kash v1.0](https://github.com/do87/kash/tree/v1.0)
 
 ## Installation
 
