@@ -8,7 +8,7 @@ Kash enables you to quickly get into a container running in a kubernetes pod
 
 Assuming `/usr/local/bin` is in your `PATH`, simply run:
 
-    wget "https://raw.githubusercontent.com/do87/kash/master/kash" \
+    wget "https://raw.githubusercontent.com/do87/kash/v1.0/kash" \
       -O /usr/local/bin/kash && chmod +x /usr/local/bin/kash
 
 ## How does it work?
