@@ -26,7 +26,11 @@ handle_containers() {
     echo "Pod ${1} has no containers";
   elif [[ $count -eq 1 ]]; then
     echo "Entering container ${filtered} in pod ${1}..."
-    kubectl exec -it "${1}" -c "${filtered}" sh
+    EXEC_SHELL=sh
+    if (kubectl exec "${1}" -c "${filtered}" which bash)>/dev/null 2>&1; then
+      EXEC_SHELL=bash
+    fi
+    kubectl exec -it "${1}" -c "${filtered}" "${EXEC_SHELL}"
   else
     echo "Choose a container:"
     echo "$filtered"
