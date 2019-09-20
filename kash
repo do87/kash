@@ -47,7 +47,7 @@ handle_containers() {
 }
 
 handle_pods() {
-  pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}');
+  pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' --field-selector=status.phase=Running);
   filtered="";
   if [[ "$1" == "" ]]; then
     selected=$( echo "${pods}" | fzf -0 -1 --tac -q "${args[1]:-""}" --prompt "> " );
@@ -79,7 +79,6 @@ handle_pods() {
 }
 
 requirements() {
-
   if [ ! -x "$(which kubectl 2>/dev/null)" ]; then
     echo "kubectl is required and couldn't be found;please refer to https://kubernetes.io/docs/tasks/kubectl/install" | tr ';' '\n' >&2
     exit 1
