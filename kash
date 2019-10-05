@@ -13,6 +13,15 @@ EOF
   exit 1
 }
 
+exec_command() {
+  EXEC_SHELL=sh
+  echo "Entering container ${2} in pod ${1}..."
+  if (kubectl exec "${1}" -c "${2}" which bash)>/dev/null 2>&1; then
+    EXEC_SHELL=bash
+  fi
+  kubectl exec -it "${1}" -c "${2}" $EXEC_SHELL
+}
+
 handle_containers() {
   containers=$(kubectl get po "${1}" -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}');
   if [[ "$2" == "" ]]; then
@@ -25,8 +34,7 @@ handle_containers() {
   if [[ "$filtered" == "" ]]; then
     echo "Pod ${1} has no containers";
   elif [[ $count -eq 1 ]]; then
-    echo "Entering container ${filtered} in pod ${1}..."
-    kubectl exec -it "${1}" -c "${filtered}" sh
+    exec_command "${1}" "${filtered}"
   else
     echo "Choose a container:"
     echo "$filtered"
@@ -34,12 +42,12 @@ handle_containers() {
     if [[ "$selected" == "" ]]; then
       exit 1
     fi
-    handle_containers "${1}" "${selected}"
+    exec_command "${1}" "${selected}"
   fi
 }
 
 handle_pods() {
-  pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}');
+  pods=$(kubectl get po -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' --field-selector=status.phase=Running);
   filtered="";
   if [[ "$1" == "" ]]; then
     selected=$( echo "${pods}" | fzf -0 -1 --tac -q "${args[1]:-""}" --prompt "> " );
@@ -71,7 +79,6 @@ handle_pods() {
 }
 
 requirements() {
-
   if [ ! -x "$(which kubectl 2>/dev/null)" ]; then
     echo "kubectl is required and couldn't be found;please refer to https://kubernetes.io/docs/tasks/kubectl/install" | tr ';' '\n' >&2
     exit 1
